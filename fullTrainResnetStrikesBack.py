@@ -18,7 +18,6 @@ import numpy as np
 import logging
 
 
-
 class BasicBlock(nn.Module):
     def __init__(self, input_planes, output_planes,stride,identityFlag):
         super(BasicBlock, self).__init__()
@@ -127,12 +126,12 @@ else:
     logger.info("No pretrained weights found")
 lrn_rate = 0.001
 num_epochs = 50
+wt_decay = 0.05
 logger.info("Learning rate : ",lrn_rate)
 logger.info("Epochs : ",num_epochs)
 criterion = nn.CrossEntropyLoss()
-optimizer = torch.optim.SGD(model.parameters(), lr=lrn_rate, weight_decay = 0.1)
-scheduler = CosineAnnealingWarmRestarts(optimizer, T_0=10, T_mult=1, eta_min=0.0001)
-
+optimizer = torch.optim.SGD(model.parameters(), lr=lrn_rate, weight_decay = wt_decay)
+logger.info("optimizer weight decay regularization :",wt_decay)
 
 num_classes = 6
 transform = transforms.Compose([
@@ -243,14 +242,13 @@ for epoch in range(num_epochs):
 
         y_true.extend(labels.detach().numpy())
         y_pred.extend(predicted.detach().numpy())
-        scheduler.step(epoch + i / iters)
         running_loss += loss.item()
         epoch_loss_training = epoch_loss_training + loss.item()
         # if i % 5 == 4:    # Print every 10 mini-batches
         #     print('[%d, %5d] loss: %.3f' %
         #           (epoch + 1, i + 1, running_loss / 5))
         #     running_loss = 0.0
-    logger.info ("[{epoch}] loss : {loss} Lr : {lr}".format(epoch=epoch,loss=epoch_loss_training,lr=scheduler.get_last_lr()))
+    logger.info ("[{epoch}] loss : {loss} Lr : {lr}".format(epoch=epoch,loss=epoch_loss_training,lr=lrn_rate))
     end_training_time = time.time()
     acc, test_loss, test_y_true, test_y_pred = compute_test_accuracy_loss()
     precision, recall = compute_precision_recall(y_true,y_pred)
