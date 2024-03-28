@@ -15,6 +15,8 @@ from sklearn.metrics import precision_score, recall_score, f1_score
 import os
 from datetime import datetime
 import numpy as np
+import logging
+
 
 
 class BasicBlock(nn.Module):
@@ -89,25 +91,44 @@ class ResNet18(nn.Sequential):
             out = self.layer2(out)
             return out
 
+pstartTime = datetime.now()
+formatted_date_pstartTime = pstartTime.strftime('%Y-%m-%d %H:%M:%S')
+
+
+
+
 seed_value = 60
 torch.manual_seed(seed_value)
 np.random.seed(seed_value)
+if not os.path.exists("../stats"):
+    os.makedirs("../stats")
 
+if not os.path.exists("../models"):
+    os.makedirs("../models")
 
-file_path_to_save_stats = "stats/statsFullTrainResnetStrikesBack.csv"
-file_path_to_save_model = "models/mlprojectFullTrainResnetStrikesBack.pth"
+if not os.path.exists("../logs"):
+    os.makedirs("../logs")
+
+logging.basicConfig(filename="../logs/"+formatted_date_pstartTime+".log",
+                    format='%(asctime)s %(message)s',
+                    filemode='w')
+logger=logging.getLogger()
+logger.setLevel(logging.DEBUG)
+
+file_path_to_save_stats = "../stats/statsFullTrainResnetStrikesBack.csv"
+file_path_to_save_model = "../models/mlprojectFullTrainResnetStrikesBack.pth"
 dataset_root = '../data/garmentStructuredData'
 model = ResNet18()
 if os.path.exists(file_path_to_save_model):
     model.load_state_dict(torch.load(file_path_to_save_model))
-    print("Model weights found loaded from path :",file_path_to_save_model)
+    logger.info("Model weights found loaded from path :",file_path_to_save_model)
 else:
 
-    print("No pretrained weights found")
+    logger.info("No pretrained weights found")
 lrn_rate = 0.001
 num_epochs = 50
-print("Learning rate : ",lrn_rate)
-print("Epochs : ",num_epochs)
+logger.info("Learning rate : ",lrn_rate)
+logger.info("Epochs : ",num_epochs)
 criterion = nn.CrossEntropyLoss()
 optimizer = torch.optim.SGD(model.parameters(), lr=lrn_rate, weight_decay = 0.1)
 scheduler = CosineAnnealingWarmRestarts(optimizer, T_0=10, T_mult=1, eta_min=0.0001)
@@ -121,7 +142,7 @@ transform = transforms.Compose([
 ])
 custom_dataset = ImageFolder(root=dataset_root, transform=transform)
 class_names = custom_dataset.classes
-print("Class names : ",class_names)
+logger.info("Class names : ",class_names)
 
 
 train_size = int(0.8 * len(custom_dataset))
@@ -149,8 +170,8 @@ def validate_on_test():
             total += labels.size(0)
             correct += (predicted == labels).sum().item()
 
-    print('Accuracy on test set: %d %%' % (100 * correct / total))
-    print('Class names (labels):', class_names)
+    logger.info('Accuracy on test set: %d %%' % (100 * correct / total))
+    logger.info('Class names (labels):', class_names)
 
 def compute_test_accuracy_loss():
     model.eval()
@@ -170,7 +191,7 @@ def compute_test_accuracy_loss():
             y_true.extend(labels.detach().numpy())
             y_pred.extend(predicted.detach().numpy())
 
-    print('Accuracy on test set: %d %%' % (100 * correct / total))
+    logger.info('Accuracy on test set: %d %%' % (100 * correct / total))
     return 100 * (correct / total), test_loss, y_true, y_pred
 
 def compute_precision_recall(labels, predictions):
@@ -229,7 +250,7 @@ for epoch in range(num_epochs):
         #     print('[%d, %5d] loss: %.3f' %
         #           (epoch + 1, i + 1, running_loss / 5))
         #     running_loss = 0.0
-    print ("[{epoch}] loss : {loss} Lr : {lr}".format(epoch=epoch,loss=epoch_loss_training,lr=scheduler.get_last_lr()))
+    logger.info ("[{epoch}] loss : {loss} Lr : {lr}".format(epoch=epoch,loss=epoch_loss_training,lr=scheduler.get_last_lr()))
     end_training_time = time.time()
     acc, test_loss, test_y_true, test_y_pred = compute_test_accuracy_loss()
     precision, recall = compute_precision_recall(y_true,y_pred)
@@ -299,4 +320,6 @@ df = pd.DataFrame(
     }
 )
 df.to_csv(file_path_to_save_stats,index=False,mode='a',header=False)
+logger.info("stats appended to ",file_path_to_save_stats)
 torch.save(model.state_dict(), file_path_to_save_model)
+logger.info("model overwritten to ",file_path_to_save_model)

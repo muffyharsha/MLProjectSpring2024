@@ -20,7 +20,4 @@ sudo python3.8 -m pip install scikit-learn
 sudo python3.8 -m pip install fastai
 sudo python3.8 -m pip install fastcore
 sudo python3.8 -m pip install matplotlib
-
-
-mkdir models
-mkdir stats
+sudo python3.8 -m pip install logging
