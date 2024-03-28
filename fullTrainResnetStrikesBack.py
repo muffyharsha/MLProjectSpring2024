@@ -150,6 +150,7 @@ test_size = len(custom_dataset) - train_size
 train_dataset, test_dataset = random_split(custom_dataset, [train_size, test_size])
 
 batch_size = 512
+logger.info("Batch size : ",batch_size)
 train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
 test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
 
@@ -171,7 +172,6 @@ def validate_on_test():
             correct += (predicted == labels).sum().item()
 
     logger.info('Accuracy on test set: %d %%' % (100 * correct / total))
-    logger.info('Class names (labels):', class_names)
 
 def compute_test_accuracy_loss():
     model.eval()
@@ -200,7 +200,7 @@ def compute_precision_recall(labels, predictions):
     return precision, recall
 
 def compute_f1_score(y_true,y_pred):
-    f1 = f1_score(y_true, y_pred, average='macro',zero_division=1)  # 'macro' computes the F1 score for each class independently and then takes the average
+    f1 = f1_score(y_true, y_pred, average='macro',zero_division=1)
     return f1
 
 batch_size_stack = []
