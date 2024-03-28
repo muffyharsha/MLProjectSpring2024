@@ -96,7 +96,7 @@ np.random.seed(seed_value)
 
 file_path_to_save_stats = "stats/statsFullTrainResnetStrikesBack.csv"
 file_path_to_save_model = "models/mlprojectFullTrainResnetStrikesBack.pth"
-dataset_root = 'C:/Users/sriha/NEU/clozy cloth types/garmentStructuredData'
+dataset_root = '../data/garmentStructuredData'
 model = ResNet18()
 if os.path.exists(file_path_to_save_model):
     model.load_state_dict(torch.load(file_path_to_save_model))
