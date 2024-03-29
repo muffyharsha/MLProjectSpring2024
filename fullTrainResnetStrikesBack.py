@@ -139,16 +139,27 @@ if len(sys.argv) > 1:
             wt_decay = sys.argv[i+1]
         if sys.argv[i] == "--filepathstats":
             arg = sys.argv[i+1]
-            filepathstats = sys.argv[i+1]
+            file_path_to_save_stats = sys.argv[i+1]
         if sys.argv[i] == "--filepathmodel":
             arg = sys.argv[i+1]
-            filepathmodel = sys.argv[i+1]
+            file_path_to_save_model = sys.argv[i+1]
         if sys.argv[i] == "--datasetpath":
             arg = sys.argv[i+1]
             dataset_root = sys.argv[i+1]
         if sys.argv[i] == "--logfilepath":
             arg = sys.argv[i+1]
             log_file_path = sys.argv[i+1]
+
+
+logger.info("batchsize",batch_size)
+logger.info("learningrate",lrn_rate)
+logger.info("epochs",num_epochs)
+logger.info("seedvalue",seed_value)
+logger.info("weightdecay",wt_decay)
+logger.info("filepathstats",file_path_to_save_stats)
+logger.info("filepathmodel",file_path_to_save_model)
+logger.info("datasetpath",dataset_root)
+logger.info("logfilepath",log_file_path)
 
 torch.manual_seed(seed_value)
 np.random.seed(seed_value)
@@ -177,12 +188,9 @@ else:
     logger.info("No pretrained weights found")
 
 
-
-logger.info("Learning rate : ",lrn_rate)
-logger.info("Epochs : ",num_epochs)
 criterion = nn.CrossEntropyLoss()
 optimizer = torch.optim.SGD(model.parameters(), lr=lrn_rate, weight_decay = wt_decay)
-logger.info("optimizer weight decay regularization :",wt_decay)
+
 
 num_classes = 6
 transform = transforms.Compose([
@@ -200,7 +208,6 @@ test_size = len(custom_dataset) - train_size
 train_dataset, test_dataset = random_split(custom_dataset, [train_size, test_size])
 
 
-logger.info("Batch size : ",batch_size)
 train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
 test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
 
