@@ -127,39 +127,45 @@ if len(sys.argv) > 1:
             batch_size = int(arg)
         if sys.argv[i] == "--learningrate":
             arg = sys.argv[i+1]
-            lrn_rate = int(arg)
+            lrn_rate = float(arg)
         if sys.argv[i] == "--epochs":
             arg = sys.argv[i+1]
-            num_epochs = sys.argv[i+1]
+            num_epochs = int(arg)
         if sys.argv[i] == "--seedvalue":
             arg = sys.argv[i+1]
-            seed_value = sys.argv[i+1]
+            seed_value = int(arg)
         if sys.argv[i] == "--weightdecay":
             arg = sys.argv[i+1]
-            wt_decay = sys.argv[i+1]
+            wt_decay = float(arg)
         if sys.argv[i] == "--filepathstats":
             arg = sys.argv[i+1]
-            file_path_to_save_stats = sys.argv[i+1]
+            file_path_to_save_stats = arg
         if sys.argv[i] == "--filepathmodel":
             arg = sys.argv[i+1]
-            file_path_to_save_model = sys.argv[i+1]
+            file_path_to_save_model = arg
         if sys.argv[i] == "--datasetpath":
             arg = sys.argv[i+1]
-            dataset_root = sys.argv[i+1]
+            dataset_root = arg
         if sys.argv[i] == "--logfilepath":
             arg = sys.argv[i+1]
-            log_file_path = sys.argv[i+1]
+            log_file_path = arg
+
+logging.basicConfig(filename=log_file_path,
+                    format='%(asctime)s %(message)s',
+                    filemode='w')
+logger=logging.getLogger()
+logger.setLevel(logging.INFO)
 
 
-logger.info("batchsize",batch_size)
-logger.info("learningrate",lrn_rate)
-logger.info("epochs",num_epochs)
-logger.info("seedvalue",seed_value)
-logger.info("weightdecay",wt_decay)
-logger.info("filepathstats",file_path_to_save_stats)
-logger.info("filepathmodel",file_path_to_save_model)
-logger.info("datasetpath",dataset_root)
-logger.info("logfilepath",log_file_path)
+logger.info("batchsize "+str(batch_size))
+logger.info("learningrate "+str(lrn_rate))
+logger.info("epochs "+str(num_epochs))
+logger.info("seedvalue "+str(seed_value))
+logger.info("weightdecay "+str(wt_decay))
+logger.info("filepathstats "+file_path_to_save_stats)
+logger.info("filepathmodel "+file_path_to_save_model)
+logger.info("datasetpath "+dataset_root)
+logger.info("logfilepath "+log_file_path)
 
 torch.manual_seed(seed_value)
 np.random.seed(seed_value)
@@ -172,17 +178,12 @@ if not os.path.exists("../models"):
 if not os.path.exists("../logs"):
     os.makedirs("../logs")
 
-logging.basicConfig(filename=log_file_path,
-                    format='%(asctime)s %(message)s',
-                    filemode='w')
-logger=logging.getLogger()
-logger.setLevel(logging.DEBUG)
 
 
 model = ResNet18()
 if os.path.exists(file_path_to_save_model):
     model.load_state_dict(torch.load(file_path_to_save_model))
-    logger.info("Model weights found loaded from path :",file_path_to_save_model)
+    logger.info("Model weights found loaded from path :"+file_path_to_save_model)
 else:
 
     logger.info("No pretrained weights found")
@@ -200,7 +201,7 @@ transform = transforms.Compose([
 ])
 custom_dataset = ImageFolder(root=dataset_root, transform=transform)
 class_names = custom_dataset.classes
-logger.info("Class names : ",class_names)
+logger.info("Class names : "+str(class_names))
 
 
 train_size = int(0.8 * len(custom_dataset))
@@ -227,8 +228,8 @@ def validate_on_test():
             _, predicted = torch.max(outputs, 1)
             total += labels.size(0)
             correct += (predicted == labels).sum().item()
-
-    logger.info('Accuracy on test set: %d %%' % (100 * correct / total))
+    acc = round(100 * correct / total,4)
+    logger.info('Accuracy on test set: ' + str(acc))
 
 def compute_test_accuracy_loss():
     model.eval()
@@ -247,8 +248,8 @@ def compute_test_accuracy_loss():
             correct += (predicted == labels).sum().item()
             y_true.extend(labels.detach().numpy())
             y_pred.extend(predicted.detach().numpy())
-
-    logger.info('Accuracy on test set: %d %%' % (100 * correct / total))
+    acc = round(100 * correct / total,4)
+    logger.info('Accuracy on test set: ' + str(acc))
     return 100 * (correct / total), test_loss, y_true, y_pred
 
 def compute_precision_recall(labels, predictions):
@@ -306,7 +307,9 @@ for epoch in range(num_epochs):
         #     print('[%d, %5d] loss: %.3f' %
         #           (epoch + 1, i + 1, running_loss / 5))
         #     running_loss = 0.0
-    logger.info ("[{epoch}] loss : {loss} Lr : {lr}".format(epoch=epoch,loss=epoch_loss_training,lr=lrn_rate))
+    logger.info("Just checking")
+    msg = "[{epoch}] loss : {loss} Lr : {lr}".format(epoch=epoch,loss=epoch_loss_training,lr=lrn_rate)
+    logger.info (msg)
     end_training_time = time.time()
     acc, test_loss, test_y_true, test_y_pred = compute_test_accuracy_loss()
     precision, recall = compute_precision_recall(y_true,y_pred)
@@ -330,7 +333,7 @@ for epoch in range(num_epochs):
 
     test_loss_stack.append(round(test_loss,4))
     train_loss_stack.append(round(epoch_loss_training,4))
-    learning_rate.append(round(scheduler.get_last_lr()[0],8))
+    learning_rate.append(lrn_rate)
     t = datetime.now()
     formatted_date = t.strftime('%Y-%m-%d %H:%M:%S')
     timestamps.append(formatted_date)
@@ -376,6 +379,6 @@ df = pd.DataFrame(
     }
 )
 df.to_csv(file_path_to_save_stats,index=False,mode='a',header=False)
-logger.info("stats appended to ",file_path_to_save_stats)
+logger.info("stats appended to "+file_path_to_save_stats)
 torch.save(model.state_dict(), file_path_to_save_model)
-logger.info("model overwritten to ",file_path_to_save_model)
+logger.info("model overwritten to "+file_path_to_save_model)
