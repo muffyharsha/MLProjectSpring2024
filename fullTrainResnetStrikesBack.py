@@ -16,6 +16,7 @@ import os
 from datetime import datetime
 import numpy as np
 import logging
+import sys
 
 
 class BasicBlock(nn.Module):
@@ -93,10 +94,62 @@ class ResNet18(nn.Sequential):
 pstartTime = datetime.now()
 formatted_date_pstartTime = pstartTime.strftime('%Y-%m-%d %H:%M:%S')
 
-
-
-
+batch_size = 512
+lrn_rate = 0.001
+num_epochs = 50
 seed_value = 60
+wt_decay = 0
+file_path_to_save_stats = "../stats/statsFullTrainResnetStrikesBack.csv"
+file_path_to_save_model = "../model/mlprojectFullTrainResnetStrikesBack.pth"
+dataset_root = '../data/garmentStructuredData'
+log_file_path = "../logs/"+formatted_date_pstartTime+".log"
+
+
+"""
+Sample command with all args
+
+python3.8 fullTrainResnetStrikesBack.py \
+    --batchsize 256 \
+    --learningrate 0.001 \
+    --epochs 50 \
+    --seedvalue 60 \
+    --weightdecay 0.001 \
+    --filepathstats <filepath> \
+    --filepathmodel <filepath> \
+    --datasetpath <filepath> \
+    --logfilepath <filepath> \
+"""
+if len(sys.argv) > 1:
+    l = len(sys.argv)
+    for i in range(l):
+        if sys.argv[i] == "--batchsize":
+            arg = sys.argv[i+1]
+            batch_size = int(arg)
+        if sys.argv[i] == "--learningrate":
+            arg = sys.argv[i+1]
+            lrn_rate = int(arg)
+        if sys.argv[i] == "--epochs":
+            arg = sys.argv[i+1]
+            num_epochs = sys.argv[i+1]
+        if sys.argv[i] == "--seedvalue":
+            arg = sys.argv[i+1]
+            seed_value = sys.argv[i+1]
+        if sys.argv[i] == "--weightdecay":
+            arg = sys.argv[i+1]
+            wt_decay = sys.argv[i+1]
+        if sys.argv[i] == "--filepathstats":
+            arg = sys.argv[i+1]
+            filepathstats = sys.argv[i+1]
+        if sys.argv[i] == "--filepathmodel":
+            arg = sys.argv[i+1]
+            filepathmodel = sys.argv[i+1]
+        if sys.argv[i] == "--datasetpath":
+            arg = sys.argv[i+1]
+            dataset_root = sys.argv[i+1]
+        if sys.argv[i] == "--logfilepath":
+            arg = sys.argv[i+1]
+            log_file_path = sys.argv[i+1]
+
 torch.manual_seed(seed_value)
 np.random.seed(seed_value)
 if not os.path.exists("../stats"):
@@ -108,15 +161,13 @@ if not os.path.exists("../models"):
 if not os.path.exists("../logs"):
     os.makedirs("../logs")
 
-logging.basicConfig(filename="../logs/"+formatted_date_pstartTime+".log",
+logging.basicConfig(filename=log_file_path,
                     format='%(asctime)s %(message)s',
                     filemode='w')
 logger=logging.getLogger()
 logger.setLevel(logging.DEBUG)
 
-file_path_to_save_stats = "../stats/statsFullTrainResnetStrikesBack.csv"
-file_path_to_save_model = "../models/mlprojectFullTrainResnetStrikesBack.pth"
-dataset_root = '../data/garmentStructuredData'
+
 model = ResNet18()
 if os.path.exists(file_path_to_save_model):
     model.load_state_dict(torch.load(file_path_to_save_model))
@@ -124,9 +175,9 @@ if os.path.exists(file_path_to_save_model):
 else:
 
     logger.info("No pretrained weights found")
-lrn_rate = 0.001
-num_epochs = 50
-wt_decay = 0.05
+
+
+
 logger.info("Learning rate : ",lrn_rate)
 logger.info("Epochs : ",num_epochs)
 criterion = nn.CrossEntropyLoss()
@@ -148,13 +199,13 @@ train_size = int(0.8 * len(custom_dataset))
 test_size = len(custom_dataset) - train_size
 train_dataset, test_dataset = random_split(custom_dataset, [train_size, test_size])
 
-batch_size = 512
+
 logger.info("Batch size : ",batch_size)
 train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
 test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
 
 torch.manual_seed(torch.initial_seed())
-
+np.random.seed(None)
 
 for param in model.parameters():
     param.requires_grad = True
