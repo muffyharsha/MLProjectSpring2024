@@ -19,6 +19,9 @@ import logging
 import sys
 from sendMsg import sendMessageToHeathcliff05botToAChat
 from makeGraphPlotsAndSendMsg import makeGraphAndSendPhoto
+import json
+import re
+import safetensors
 
 class BasicBlock(nn.Module):
     def __init__(self, input_planes, output_planes,stride,identityFlag):
@@ -100,11 +103,13 @@ lrn_rate = 0.001
 num_epochs = 50
 seed_value = 60
 wt_decay = 0
-file_path_to_save_stats = "../stats/statsFullTrainResnetStrikesBack.csv"
-file_path_to_save_model = "../model/mlprojectFullTrainResnetStrikesBack.pth"
+file_path_to_save_stats = "../stats/statsFineTuneResnetStrikesBack.csv"
+file_path_to_save_model = "../model/mlprojectFineTuneResnetStrikesBack.pth"
 dataset_root = '../data/garmentStructuredData'
 log_file_path = "../logs/"+formatted_date_pstartTime+".log"
 dir_to_save_plots = "../plots/"+formatted_date_pstartTime+".png"
+base_model_path = "../models/imagenet_resnet18.safetensors"
+weights_mapping_doc = "finetune_model_param_map.json"
 
 """
 Sample command with all args
@@ -153,6 +158,12 @@ if len(sys.argv) > 1:
         if sys.argv[i] == "--plotsavedir":
             arg = sys.argv[i+1]
             dir_to_save_plots = arg
+        if sys.argv[i] == "--basemodelpath":
+            arg = sys.argv[i+1]
+            base_model_path = arg
+        if sys.argv[i] == "--weightsmappingdoc":
+            arg = sys.argv[i+1]
+            weights_mapping_doc = arg
 
 
 logging.basicConfig(filename=log_file_path,
@@ -174,9 +185,11 @@ logger.info("filepathmodel "+file_path_to_save_model)
 logger.info("datasetpath "+dataset_root)
 logger.info("logfilepath "+log_file_path)
 logger.info("plotsavedir "+dir_to_save_plots)
+logger.info("basemodelpath "+base_model_path)
+logger.info("weightsmappingdoc "+weights_mapping_doc)
 
 msg = """
-[START] Resnet18 Crossvalidation step started
+[START] Resnet18-FT Crossvalidation step started
 batch size : {bsize}
 learning rate : {lr}
 epochs : {ep}
@@ -199,13 +212,36 @@ if not os.path.exists("../logs"):
 
 
 model = ResNet18()
+
 if os.path.exists(file_path_to_save_model):
     model.load_state_dict(torch.load(file_path_to_save_model))
     logger.info("Model weights found loaded from path :"+file_path_to_save_model)
 else:
-
     logger.info("No pretrained weights found")
+    logger.info("Loading weights from pre-trained base model",base_model_path)
+    tensors = {}
+    with safetensors.safe_open(base_model_path, framework="pt") as f:
+        for k in f.keys():
+            tensors[k] = f.get_tensor(k)
+    with open(weights_mapping_doc, 'r') as file:
+        mapDoc = json.load(file)
 
+    for name, param in model.named_parameters():
+        if name in mapDoc.keys():
+            param.data.copy_(tensors[mapDoc[name]])
+            logger.info(name," param copied from ",mapDoc[name])
+        else :
+            logger.info(name,"param not copied or found in mapping doc")
+
+
+for name, param in model.named_parameters():
+    param.requires_grad = False
+    logger.info("Setting all params to requires_grad False")
+
+for name, param in model.named_parameters():
+    if re.search("layer2",name):
+        param.requires_grad = True
+        logger.info(name," parm set to requires_grad True")
 
 criterion = nn.CrossEntropyLoss()
 optimizer = torch.optim.SGD(model.parameters(), lr=lrn_rate, weight_decay = wt_decay)
@@ -403,7 +439,7 @@ logger.info("model overwritten to "+file_path_to_save_model)
 
 
 msg = """
-[COMPLETE] Resnet18 Crossvalidation step complete
+[COMPLETE] Resnet18-FT Crossvalidation step complete
 batch size : {bsize}
 learning rate : {lr}
 epochs : {ep}
