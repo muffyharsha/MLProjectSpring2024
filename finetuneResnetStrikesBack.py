@@ -215,10 +215,10 @@ model = ResNet18()
 
 if os.path.exists(file_path_to_save_model):
     model.load_state_dict(torch.load(file_path_to_save_model))
-    logger.info("Model weights found loaded from path :"+file_path_to_save_model)
+    logger.info("Model weights found loaded from path : "+file_path_to_save_model)
 else:
     logger.info("No pretrained weights found")
-    logger.info("Loading weights from pre-trained base model",base_model_path)
+    logger.info("Loading weights from pre-trained base model "+base_model_path)
     tensors = {}
     with safetensors.safe_open(base_model_path, framework="pt") as f:
         for k in f.keys():
@@ -229,19 +229,19 @@ else:
     for name, param in model.named_parameters():
         if name in mapDoc.keys():
             param.data.copy_(tensors[mapDoc[name]])
-            logger.info(name," param copied from ",mapDoc[name])
+            logger.info(name+" param copied from "+mapDoc[name])
         else :
-            logger.info(name,"param not copied or found in mapping doc")
+            logger.info(name+" param not copied or found in mapping doc")
 
-
+logger.info("Setting all params to requires_grad False")
 for name, param in model.named_parameters():
     param.requires_grad = False
-    logger.info("Setting all params to requires_grad False")
+
 
 for name, param in model.named_parameters():
     if re.search("layer2",name):
         param.requires_grad = True
-        logger.info(name," parm set to requires_grad True")
+        logger.info(name+" param set to requires_grad True")
 
 criterion = nn.CrossEntropyLoss()
 optimizer = torch.optim.SGD(model.parameters(), lr=lrn_rate, weight_decay = wt_decay)
@@ -269,8 +269,6 @@ test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
 torch.manual_seed(torch.initial_seed())
 np.random.seed(None)
 
-for param in model.parameters():
-    param.requires_grad = True
 
 def validate_on_test():
     model.eval()

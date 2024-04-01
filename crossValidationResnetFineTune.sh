@@ -1,8 +1,8 @@
 
-python fullTrainResnetStrikesBack.py \
+python finetuneResnetStrikesBack.py \
 --batchsize 256 \
---learningrate 0.001 \
---epochs 10 \
+--learningrate 0.0001 \
+--epochs 5 \
 --seedvalue 60 \
 --weightdecay 0.1 \
 --filepathstats "C:/Users/sriha/NEU/ML Project/stats/resnetFT_256_1.csv" \
@@ -13,10 +13,10 @@ python fullTrainResnetStrikesBack.py \
 --basemodelpath "C:/Users/sriha/NEU/ML Project/models/imagenet_resnet18.safetensors" \
 --weightsmappingdoc "C:/Users/sriha/NEU/ML Project/awsMLProject/finetune_model_param_map.json" > ../out/resnetFT_256_1.out
 
-python fullTrainResnetStrikesBack.py \
+python finetuneResnetStrikesBack.py \
 --batchsize 256 \
---learningrate 0.001 \
---epochs 10 \
+--learningrate 0.0001 \
+--epochs 5 \
 --seedvalue 60 \
 --weightdecay 0.05 \
 --filepathstats "C:/Users/sriha/NEU/ML Project/stats/resnetFT_256_05.csv" \
@@ -27,10 +27,10 @@ python fullTrainResnetStrikesBack.py \
 --basemodelpath "C:/Users/sriha/NEU/ML Project/models/imagenet_resnet18.safetensors" \
 --weightsmappingdoc "C:/Users/sriha/NEU/ML Project/awsMLProject/finetune_model_param_map.json" > ../out/resnetFT_256_05.out
 
-python fullTrainResnetStrikesBack.py \
+python finetuneResnetStrikesBack.py \
 --batchsize 256 \
---learningrate 0.001 \
---epochs 10 \
+--learningrate 0.0001 \
+--epochs 5 \
 --seedvalue 60 \
 --weightdecay 0.01 \
 --filepathstats "C:/Users/sriha/NEU/ML Project/stats/resnetFT_256_01.csv" \
@@ -41,10 +41,10 @@ python fullTrainResnetStrikesBack.py \
 --basemodelpath "C:/Users/sriha/NEU/ML Project/models/imagenet_resnet18.safetensors" \
 --weightsmappingdoc "C:/Users/sriha/NEU/ML Project/awsMLProject/finetune_model_param_map.json" > ../out/resnetFT_256_01.out
 
-python fullTrainResnetStrikesBack.py \
+python finetuneResnetStrikesBack.py \
 --batchsize 256 \
---learningrate 0.001 \
---epochs 10 \
+--learningrate 0.0001 \
+--epochs 5 \
 --seedvalue 60 \
 --weightdecay 0.005 \
 --filepathstats "C:/Users/sriha/NEU/ML Project/stats/resnetFT_256_005.csv" \
@@ -56,10 +56,10 @@ python fullTrainResnetStrikesBack.py \
 --weightsmappingdoc "C:/Users/sriha/NEU/ML Project/awsMLProject/finetune_model_param_map.json" > ../out/resnetFT_256_005.out
 
 
-python fullTrainResnetStrikesBack.py \
+python finetuneResnetStrikesBack.py \
 --batchsize 256 \
---learningrate 0.001 \
---epochs 10 \
+--learningrate 0.0001 \
+--epochs 5 \
 --seedvalue 60 \
 --weightdecay 0.001 \
 --filepathstats "C:/Users/sriha/NEU/ML Project/stats/resnetFT_256_001.csv" \
@@ -70,10 +70,10 @@ python fullTrainResnetStrikesBack.py \
 --basemodelpath "C:/Users/sriha/NEU/ML Project/models/imagenet_resnet18.safetensors" \
 --weightsmappingdoc "C:/Users/sriha/NEU/ML Project/awsMLProject/finetune_model_param_map.json" > ../out/resnetFT_256_001.out
 
-python fullTrainResnetStrikesBack.py \
+python finetuneResnetStrikesBack.py \
 --batchsize 256 \
---learningrate 0.001 \
---epochs 10 \
+--learningrate 0.0001 \
+--epochs 5 \
 --seedvalue 60 \
 --weightdecay 0.0005 \
 --filepathstats "C:/Users/sriha/NEU/ML Project/stats/resnetFT_256_0005.csv" \
@@ -85,10 +85,10 @@ python fullTrainResnetStrikesBack.py \
 --weightsmappingdoc "C:/Users/sriha/NEU/ML Project/awsMLProject/finetune_model_param_map.json" > ../out/resnetFT_256_0005.out
 
 
-python fullTrainResnetStrikesBack.py \
+python finetuneResnetStrikesBack.py \
 --batchsize 256 \
---learningrate 0.001 \
---epochs 10 \
+--learningrate 0.0001 \
+--epochs 5 \
 --seedvalue 60 \
 --weightdecay 0.0001 \
 --filepathstats "C:/Users/sriha/NEU/ML Project/stats/resnetFT_256_0001.csv" \
@@ -100,10 +100,10 @@ python fullTrainResnetStrikesBack.py \
 --weightsmappingdoc "C:/Users/sriha/NEU/ML Project/awsMLProject/finetune_model_param_map.json" > ../out/resnetFT_256_0001.out
 
 
-python fullTrainResnetStrikesBack.py \
+python finetuneResnetStrikesBack.py \
 --batchsize 256 \
---learningrate 0.001 \
---epochs 10 \
+--learningrate 0.0001 \
+--epochs 5 \
 --seedvalue 60 \
 --weightdecay 0 \
 --filepathstats "C:/Users/sriha/NEU/ML Project/stats/resnetFT_256.csv" \
