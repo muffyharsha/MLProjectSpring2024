@@ -42,7 +42,7 @@ def makeGraphAndSendPhoto(chatid,filePath,saveDir):
     buffer.seek(0)
     plt.close(fig)
 
-    heathcliff05_bot_url = "https://api.telegram.org/bot7074777093:AAEsNyww4yly__94k-0FV_FI7f95XKU9CPM/sendPhoto"
+    heathcliff05_bot_url = "https://api.telegram.org/<config>/sendPhoto"
 
     files = {
             'photo': ('plot2.png', buffer, 'image/png')

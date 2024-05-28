@@ -196,7 +196,7 @@ epochs : {ep}
 seed value : {sdv}
 weight decay (L2 regularization) : {wd}
 """.format(bsize=batch_size,lr=lrn_rate,ep=num_epochs,sdv=seed_value,wd=wt_decay)
-sendMessageToHeathcliff05botToAChat("-4149848480",msg)
+sendMessageToHeathcliff05botToAChat("<Telegram ID>",msg)
 
 torch.manual_seed(seed_value)
 np.random.seed(seed_value)
@@ -445,5 +445,5 @@ seed value : {sdv}
 weight decay (L2 regularization) : {wd}
 """.format(bsize=batch_size,lr=lrn_rate,ep=num_epochs,sdv=seed_value,wd=wt_decay)
 
-makeGraphAndSendPhoto("-4149848480",file_path_to_save_stats,dir_to_save_plots)
-sendMessageToHeathcliff05botToAChat("-4149848480",msg)
+makeGraphAndSendPhoto("<Telegram ID>",file_path_to_save_stats,dir_to_save_plots)
+sendMessageToHeathcliff05botToAChat("<Telegram ID>",msg)
